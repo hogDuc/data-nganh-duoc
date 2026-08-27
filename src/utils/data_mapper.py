@@ -20,18 +20,28 @@ def remove_vietnamese_diacritics(text):
     text = re.sub(r'[\u0300-\u036f]', '', text)
     return unicodedata.normalize('NFC', text).strip().lower()
 
-def build_regex_pattern(keywords):
-
+def build_regex_pattern(keywords, is_regex: bool = False):
     if not keywords:
         return None
     if isinstance(keywords, str):
         keywords = [keywords]
-    escaped = [
-        re.escape(remove_vietnamese_diacritics(k)) 
-        for k in keywords 
-        if k and str(k).strip()
-    ]
-    return '|'.join(escaped) if escaped else None
+
+    processed = []
+    for k in keywords:
+        if not k or not str(k).strip():
+            continue
+        # 1. Normalize diacritics and lowercase
+        cleaned = remove_vietnamese_diacritics(k)
+        
+        # 2. Escape only if it is standard literal text
+        if is_regex:
+            # DO NOT escape regex characters (^, \s, *, etc.)
+            processed.append(f"({cleaned})")
+        else:
+            # Escape plain text keywords
+            processed.append(f"({re.escape(cleaned)})")
+
+    return '|'.join(processed) if processed else None
 
 
 def read_xml(path) -> pd.DataFrame:
@@ -135,9 +145,10 @@ def filter_data(
 
         include_kws = rule.get('include_keyword', rule.get('include_keywords', []))
         exclude_kws = rule.get('exclude_keyword', rule.get('exclude_keywords', []))
-        
-        include_pat = build_regex_pattern(include_kws)
-        exclude_pat = build_regex_pattern(exclude_kws)
+
+        is_regex = rule.get('is_regex', False)
+        include_pat = build_regex_pattern(include_kws, is_regex=is_regex)
+        exclude_pat = build_regex_pattern(exclude_kws, is_regex=is_regex)
         
         if not include_pat:
             continue
