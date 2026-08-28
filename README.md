@@ -1,4 +1,11 @@
 # Set up
+### Tải code từ github
+
+Bước 1: Tạo một folder mới để chưa code 
+Bước 2: Mở folder trong VSCode và sử dụng Terminal trong VSCode, hoặc thao tác chuột phải -> open in Terminal
+Bước 3: Nhập câu lệnh `git clone https://github.com/hogDuc/data-nganh-duoc.git`
+
+__Lưu ý:__ cần phải cài đặt git trước nếu chưa có trong máy. (Link)[https://git-scm.com/install/windows]
 ### Cài đặt thư viện
 Chạy code `pip install -r requirements.txt` trong terminal hoặc notebook (.ipynb) để cài các thư viện cần thiết
 ### Dữ liệu
