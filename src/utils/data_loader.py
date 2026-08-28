@@ -39,20 +39,29 @@ def validate_medical_df(
   return pd.DataFrame(validated_dicts)
 
 def remove_vietnamese_diacritics(text):
-    """Loại bỏ dấu tiếng Việt
+    """Loại bỏ dấu tiếng Việt và chuẩn hóa khoảng trắng/xuống dòng
 
     Args:
         text (str): câu input
 
     Returns:
-        str: Output đã loại bỏ dấu tiếng việt
+        str: Output đã loại bỏ dấu tiếng việt, khoảng trắng chuẩn
     """
     if pd.isna(text) or text is None:
         return ""
-    text = str(text).replace('đ', 'd').replace('Đ', 'D')
+    
+    # 1. Chuyển đổi ký tự đặc biệt đ/Đ và non-breaking space
+    text = str(text).replace('đ', 'd').replace('Đ', 'D').replace('\xa0', ' ')
+    
+    # 2. Xóa toàn bộ dấu tiếng Việt
     text = unicodedata.normalize('NFD', text)
     text = re.sub(r'[\u0300-\u036f]', '', text)
-    return unicodedata.normalize('NFC', text).strip().lower()
+    text = unicodedata.normalize('NFC', text)
+    
+    # 3. Gộp các ký tự xuống dòng (\n, \r), tab, và nhiều dấu cách liền nhau thành 1 khoảng trắng duy nhất
+    text = re.sub(r'\s+', ' ', text)
+    
+    return text.strip().lower()
 
 def build_regex_pattern(keywords, is_regex: bool = False):
   if not keywords:
