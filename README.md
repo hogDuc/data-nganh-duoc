@@ -1,9 +1,11 @@
 # Set up
 ### Tải code từ github
 
-Bước 1: Tạo một folder mới để chưa code 
-Bước 2: Mở folder trong VSCode và sử dụng Terminal trong VSCode, hoặc thao tác chuột phải -> open in Terminal
-Bước 3: Nhập câu lệnh `git clone https://github.com/hogDuc/data-nganh-duoc.git`
+__Bước 1:__ Tạo một folder mới để chưa code
+
+__Bước 2:__ Mở folder trong VSCode và sử dụng Terminal trong VSCode, hoặc thao tác chuột phải -> open in Terminal
+
+__Bước 3:__ Nhập câu lệnh `git clone https://github.com/hogDuc/data-nganh-duoc.git`
 
 __Lưu ý:__ cần phải cài đặt git trước nếu chưa có trong máy. [Link](https://git-scm.com/install/windows)
 ### Cài đặt thư viện
@@ -13,7 +15,9 @@ Tải dữ liệu raw từ APD, đưa vào folder data/raw/
 # Hướng dẫn sử dụng
 ### Cài đặt filter
 Để điều chỉnh, thêm, bớt các filter cho dữ liệu, truy cập [file]('config/filter_config.py')
+
 Về cấu trúc của filter gồm các mục bắt buộc sau:
+```
     input_col: Tên cột cần lọc của dữ liệu gốc, ví dụ 'nhasx'
     output_col: Tên cột gán nhãn cho đầu ra, ví dụ 'ticker'
     filter: Bộ lọc chính
@@ -23,7 +27,7 @@ Về cấu trúc của filter gồm các mục bắt buộc sau:
             exclude_keyword: Các từ khóa để loại ra các trường hợp bị lẫn
             is_regex: True cho một số trường hợp đặc biệt. Ví dụ sản xuất trung gian
         ]
-
+```
 Ví dụ:
 ```
 producer_config = {
