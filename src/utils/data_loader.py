@@ -9,6 +9,10 @@ from typing import Union
 from pydantic import TypeAdapter
 from typing import Literal
 
+'''
+Đây là các function cần thiết
+'''
+
 def validate_medical_df(
     df: pd.DataFrame, return_as: str = "df"
 ) -> Union[pd.DataFrame, list[MedicineRecord]]:
@@ -251,6 +255,11 @@ def validate_medical_df(
     return pd.DataFrame(validated_dicts)
 
 class LoadMedicalData:
+    """Class xử lý dữ liệu ngành Dược
+    Args:
+        datasource (str|pd.DataFrame): PATH đến file .xls raw của APD hoặc dataframe
+        config (dict): Dictionary chứa filter cho dữ liệu
+    """
     def __init__(self, datasource:str|pd.DataFrame, config=dict):
 
         if isinstance(datasource, str):

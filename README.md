@@ -4,4 +4,38 @@ Chạy code `pip install -r requirements.txt` trong terminal hoặc notebook (.i
 ### Dữ liệu
 Tải dữ liệu raw từ APD, đưa vào folder data/raw/
 # Hướng dẫn sử dụng
+### Cài đặt filter
+Để điều chỉnh, thêm, bớt các filter cho dữ liệu, truy cập (file)['config/filter_config.py']
+Về cấu trúc của filter gồm các mục bắt buộc sau:
+    input_col: Tên cột cần lọc của dữ liệu gốc, ví dụ 'nhasx'
+    output_col: Tên cột gán nhãn cho đầu ra, ví dụ 'ticker'
+    filter: Bộ lọc chính
+        [
+            output_value: Giá trị đã chuẩn hóa cho output, ví dụ phân loại theo nhà sản xuất thì sẽ đưa vào tên nhà sản xuất
+            include_keyword: Các từ khóa để lọc trong dữ liệu
+            exclude_keyword: Các từ khóa để loại ra các trường hợp bị lẫn
+            is_regex: True cho một số trường hợp đặc biệt. Ví dụ sản xuất trung gian
+        ]
+
+Ví dụ:
+```
+producer_config = {
+    "input_col":'nhasx',
+    "output_col":"ticker",
+    'filter':[
+        {
+            "output_value": "IMP",
+            "include_keyword": ["imexpharm"],
+            "exclude_keyword": ["agimexpharm"]
+        },
+    ]
+}
+```
+
+Lưu ý:
+- Các keyword viết dưới dạng không dấu, viết thường, không viết hoa.
+- Các keyword BẮT BUỘC phải để trong ngoặc '' hoặc "", và chuỗi các keyword phải được đặt trong ngoặc [].
+- Các mục phải được ngăn cách bởi dấu ','
+- Nếu không có exclude thì để giá trị []. 
+### Demo
 Truy cập hướng dẫn tại (đây)['tests/example.ipynb'] 

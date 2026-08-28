@@ -3,6 +3,10 @@ from typing import Any, Optional, Union
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, TypeAdapter, field_validator
 
+'''
+Schema chuẩn hóa dữ liệu raw từ APD
+'''
+
 
 class MedicineRecord(BaseModel):
     model_config = ConfigDict(
