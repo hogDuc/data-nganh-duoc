@@ -3,6 +3,36 @@ import re
 import unicodedata
 import pandas as pd
 from bs4 import BeautifulSoup
+from lxml import etree
+from src.schemas.medicine_schema import MedicineRecord
+from typing import Union
+from pydantic import TypeAdapter
+from typing import Literal
+
+def validate_medical_df(
+    df: pd.DataFrame, return_as: str = "df"
+) -> Union[pd.DataFrame, list[MedicineRecord]]:
+  """Validates DataFrame rows against MedicineRecord schema.
+
+  Args:
+      df: Raw extracted DataFrame from read_xml()
+      return_as: 'df' to get typed DataFrame, or 'models' to get
+        list[MedicineRecord]
+  """
+  adapter = TypeAdapter(list[MedicineRecord])
+
+  # Convert DataFrame to records dict and validate in batch
+  records = df.to_dict(orient="records")
+  validated_records = adapter.validate_python(records)
+
+  if return_as == "models":
+    return validated_records
+
+  # Reconstruct DataFrame with clean, typed columns
+  validated_dicts = [
+      rec.model_dump(exclude_unset=False) for rec in validated_records
+  ]
+  return pd.DataFrame(validated_dicts)
 
 def remove_vietnamese_diacritics(text):
     """Loại bỏ dấu tiếng Việt
@@ -21,49 +51,60 @@ def remove_vietnamese_diacritics(text):
     return unicodedata.normalize('NFC', text).strip().lower()
 
 def build_regex_pattern(keywords, is_regex: bool = False):
-    if not keywords:
-        return None
-    if isinstance(keywords, str):
-        keywords = [keywords]
+  if not keywords:
+    return None
+  if isinstance(keywords, str):
+    keywords = [keywords]
 
-    processed = []
-    for k in keywords:
-        if not k or not str(k).strip():
-            continue
-        # 1. Normalize diacritics and lowercase
-        cleaned = remove_vietnamese_diacritics(k)
-        
-        # 2. Escape only if it is standard literal text
-        if is_regex:
-            # DO NOT escape regex characters (^, \s, *, etc.)
-            processed.append(f"({cleaned})")
-        else:
-            # Escape plain text keywords
-            processed.append(f"({re.escape(cleaned)})")
+  processed = []
+  for k in keywords:
+    if not k or not str(k).strip():
+      continue
+    cleaned = remove_vietnamese_diacritics(k)
+    # Use (?:...) non-capturing group to prevent regex warnings
+    if is_regex:
+      processed.append(f"(?:{cleaned})")
+    else:
+      processed.append(f"(?:{re.escape(cleaned)})")
 
-    return '|'.join(processed) if processed else None
+  return "|".join(processed) if processed else None
 
 
-def read_xml(path) -> pd.DataFrame:
-    """Đọc dữ liệu XML từ APD
+def read_xml(path: str) -> pd.DataFrame:
+  """Fast XML parser that correctly extracts cell values without creating ghost/empty columns."""
+  parser = etree.XMLParser(recover=True, encoding="utf-8")
 
-    Args:
-        path (str): PATH đến file dữ liệu gốc
+  with open(path, "rb") as f:
+    tree = etree.parse(f, parser=parser)
 
-    Returns:
-        pd.DataFrame: Dữ liệu bảng
-    """
+  root = tree.getroot()
 
-    with open(path, 'r', encoding='utf-8') as f:
-        soup = BeautifulSoup(f.read(), 'xml')
+  rows = []
+  for row in root.xpath('.//*[local-name()="Row"]'):
+    cells = []
+    for cell in row.xpath('./*[local-name()="Cell"]'):
+      # Get text inside <Data> if present, otherwise directly inside <Cell>
+      text = cell.xpath('string(.)').strip()
+      cells.append(text)
 
-    rows = []
-    for row in soup.find_all('Row'):
-        rows.append([cell.get_text(strip=True) for cell in row.find_all('Cell')])
+    # Only include non-empty rows
+    if any(cells):
+      rows.append(cells)
 
-    df = pd.DataFrame(rows[1:], columns=rows[0])
+  if not rows or len(rows) < 2:
+    return pd.DataFrame()
 
-    return df
+  # Set header from row 0
+  headers = [col.strip() for col in rows[0]]
+  df = pd.DataFrame(rows[1:], columns=headers)
+
+  # Drop columns where the header is completely empty ('' or whitespace)
+  df = df.loc[:, [col != "" for col in df.columns]]
+
+  # Drop any leftover completely empty/blank columns
+  df = df.dropna(how="all", axis=1)
+
+  return df
 
 
 class ConfigValidationError(Exception):
@@ -183,3 +224,91 @@ def filter_data(
     if return_unmatched:
         return result_df, unmatched_df
     return result_df
+
+def validate_medical_df(
+    df: pd.DataFrame, return_as: str = "df"
+    ) -> Union[pd.DataFrame, list[MedicineRecord]]:
+    """Validates DataFrame rows against MedicineRecord schema.
+
+    Args:
+        df: Raw extracted DataFrame from read_xml()
+        return_as: 'df' to get typed DataFrame, or 'models' to get
+            list[MedicineRecord]
+    """
+    adapter = TypeAdapter(list[MedicineRecord])
+
+    # Convert DataFrame to records dict and validate in batch
+    records = df.to_dict(orient="records")
+    validated_records = adapter.validate_python(records)
+
+    if return_as == "models":
+        return validated_records
+
+    # Reconstruct DataFrame with clean, typed columns
+    validated_dicts = [
+        rec.model_dump(exclude_unset=False) for rec in validated_records
+    ]
+    return pd.DataFrame(validated_dicts)
+
+class LoadMedicalData:
+    def __init__(self, datasource:str|pd.DataFrame, config=dict):
+
+        if isinstance(datasource, str):
+            self.filepath = datasource
+            self.df = validate_medical_df(read_xml(self.filepath))
+        elif isinstance(datasource, pd.DataFrame):
+            self.df = datasource.copy()
+            self.filepath = None
+        else:
+            raise TypeError("Invalid datasource type. Expected str or pd.DataFrame.")
+
+        if isinstance(config, dict):
+            self.config = config
+        else:
+            raise TypeError("Invalid config type. Must be dictionary")
+
+    def show_data(self) -> pd.DataFrame:
+        """Trả về toàn bộ dữ liệu đã load từ PATH
+
+        Returns:
+            pd.DataFrame
+        """
+        return self.df
+    
+    def get_watchlist(self, config:dict) -> pd.DataFrame:
+        """Lấy tất cả các mục đang được theo dõi trong config
+        
+        Args:
+        config (dict): Dictionary config
+        Returns:
+            pd.DataFrame: Dữ liệu đã được lọc
+        """
+        return filter_data(self.df, config)
+
+    def filter(self, by:str=None, verbose=False):
+        data = filter_data(self.df, self.config, verbose=verbose)
+
+        available_values = [val['output_value'] for val in self.config['filter']]
+
+        if by:
+            if by not in available_values:
+                raise ValueError(f'Filter value is not in config. Available values: {available_values}')
+
+            filtered = data.loc[
+                data[self.config['output_col']] == by
+            ].reset_index(drop=True)
+        else:
+            filtered = data.copy().reset_index(drop=True)
+
+        return LoadMedicalData(datasource=filtered.reset_index(drop=True), config=self.config)
+
+    def sum(self, value_col:Literal['thanhtien', 'soluong'], groupby:str=None):
+        if value_col not in self.df.columns:
+            raise KeyError(f'Column {value_col} not found')
+
+        if groupby:
+            temp_df = self.df.copy()
+            return temp_df.groupby(groupby)[value_col].sum()
+        
+        return self.df[value_col].sum()
+    

@@ -57,10 +57,49 @@ class MedicineRecord(BaseModel):
     tungay_hd: Optional[datetime] = None
     denngay_hd: Optional[datetime] = None
 
-    # Global validator: converts pandas NaN / float('nan') / empty strings to None before validating
+    # 1. Global validator for NaN and empty strings
     @field_validator("*", mode="before")
     @classmethod
     def handle_missing_and_empty(cls, v: Any) -> Any:
         if pd.isna(v) or v == "":
             return None
         return v
+
+    # 2. Number validator (handles '1,000,000' commas)
+    @field_validator("soluong", "gia", "thanhtien", mode="before")
+    @classmethod
+    def parse_numbers(cls, v: Any) -> Optional[float]:
+        if v is None or pd.isna(v) or v == "":
+            return 0.0
+        if isinstance(v, (int, float)):
+            return float(v)
+        # Remove commas and whitespace
+        clean_str = str(v).replace(",", "").strip()
+        try:
+            return float(clean_str)
+        except ValueError:
+            return 0.0
+
+    # 3. Date validator (handles 'DD/MM/YYYY' and 'YYYY-MM-DD')
+    @field_validator(
+        "created_date",
+        "tungay",
+        "denngay",
+        "congbo",
+        "tungay_hd",
+        "denngay_hd",
+        mode="before",
+    )
+    @classmethod
+    def parse_dates(cls, v: Any) -> Optional[datetime]:
+        if v is None or pd.isna(v) or v == "":
+            return None
+        if isinstance(v, (datetime, pd.Timestamp)):
+            return v.to_pydatetime() if isinstance(v, pd.Timestamp) else v
+        v_str = str(v).strip()
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d"):
+            try:
+                return datetime.strptime(v_str, fmt)
+            except ValueError:
+                pass
+        return None
