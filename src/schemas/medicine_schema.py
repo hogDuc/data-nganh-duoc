@@ -1,11 +1,13 @@
 from datetime import datetime
 from typing import Any, Optional, Union
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, TypeAdapter, field_validator
 
 
 class MedicineRecord(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+    model_config = ConfigDict(
+        populate_by_name=True, str_strip_whitespace=True, extra="ignore"
+    )
 
     # Mandatory
     loai_thau: str
@@ -33,7 +35,7 @@ class MedicineRecord(BaseModel):
     nuocsx: Optional[str] = None
     donvitinh: Optional[str] = None
 
-    # Numerical Metrics (Quantities, Prices)
+    # Numerical Metrics
     soluong: Optional[float] = 0.0
     gia: Optional[float] = 0.0
     thanhtien: Optional[float] = 0.0
@@ -57,15 +59,15 @@ class MedicineRecord(BaseModel):
     tungay_hd: Optional[datetime] = None
     denngay_hd: Optional[datetime] = None
 
-    # 1. Global validator for NaN and empty strings
+    # 1. Global validator for NaN and empty values
     @field_validator("*", mode="before")
     @classmethod
     def handle_missing_and_empty(cls, v: Any) -> Any:
-        if pd.isna(v) or v == "":
+        if pd.isna(v) or v == "" or str(v).strip().lower() in ("nan", "nat", "none"):
             return None
         return v
 
-    # 2. Number validator (handles '1,000,000' commas)
+    # 2. Number validator
     @field_validator("soluong", "gia", "thanhtien", mode="before")
     @classmethod
     def parse_numbers(cls, v: Any) -> Optional[float]:
@@ -73,14 +75,13 @@ class MedicineRecord(BaseModel):
             return 0.0
         if isinstance(v, (int, float)):
             return float(v)
-        # Remove commas and whitespace
         clean_str = str(v).replace(",", "").strip()
         try:
             return float(clean_str)
         except ValueError:
             return 0.0
 
-    # 3. Date validator (handles 'DD/MM/YYYY' and 'YYYY-MM-DD')
+    # 3. Dedicated Date & Timestamp validator
     @field_validator(
         "created_date",
         "tungay",
@@ -94,12 +95,34 @@ class MedicineRecord(BaseModel):
     def parse_dates(cls, v: Any) -> Optional[datetime]:
         if v is None or pd.isna(v) or v == "":
             return None
-        if isinstance(v, (datetime, pd.Timestamp)):
-            return v.to_pydatetime() if isinstance(v, pd.Timestamp) else v
+
+        if isinstance(v, pd.Timestamp):
+            return v.to_pydatetime()
+        if isinstance(v, datetime):
+            return v
+
         v_str = str(v).strip()
-        for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d"):
+
+        # Formats matching your exact APD export structure
+        formats = (
+            "%Y-%m-%d %H:%M:%S",  # e.g., '2025-04-11 00:00:00', '2025-10-25 22:21:51'
+            "%Y-%m-%d",  # e.g., '2025-04-11'
+            "%d/%m/%Y %H:%M:%S",  # e.g., '11/04/2025 00:00:00'
+            "%d/%m/%Y",  # e.g., '11/04/2025'
+        )
+
+        for fmt in formats:
             try:
                 return datetime.strptime(v_str, fmt)
             except ValueError:
-                pass
+                continue
+
+        # Fallback to pandas robust parser
+        try:
+            parsed = pd.to_datetime(v_str)
+            if pd.notna(parsed):
+                return parsed.to_pydatetime()
+        except Exception:
+            pass
+
         return None
