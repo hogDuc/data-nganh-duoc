@@ -268,65 +268,151 @@ class LoadMedicalData:
     Args:
         datasource (str|pd.DataFrame): PATH đến file .xls raw của APD hoặc dataframe
         config (dict): Dictionary chứa filter cho dữ liệu
+        drug_types_path (str): PATH đến file excel của bảng Danh mục hoạt chất theo loại thuốc
     """
-    def __init__(self, datasource:str|pd.DataFrame, config=dict):
+    def __init__(
+          self, 
+          datasource:str|pd.DataFrame, 
+          config:dict, 
+          drug_types_path:str|pd.DataFrame,
+          is_merged=False
+        ):
+
+        if isinstance(drug_types_path, str) and drug_types_path.endswith('xlsx'):
+           self.drug_types = pd.read_excel(drug_types_path).dropna(how='all').reset_index(drop=True)[1:]
+           self.drug_types.columns = self.drug_types.iloc[0].values
+           self.drug_types = self.drug_types[1:].reset_index(drop=True).dropna(axis=1, how='all').drop(
+              columns='STT'
+           )
+           self.drug_types['Loại thuốc 1'] = self.drug_types['Loại thuốc 1'].ffill()
+           self.drug_types['Loại thuốc 2'] = self.drug_types['Loại thuốc 2'].ffill()
+        elif isinstance(drug_types_path, pd.DataFrame):
+           self.drug_types = drug_types_path.copy()
+        else:
+           raise TypeError('Invalid drug types file. Only accept .xlsx')
 
         if isinstance(datasource, str):
             self.filepath = datasource
             self.df = validate_medical_df(read_xml(self.filepath))
+
         elif isinstance(datasource, pd.DataFrame):
             self.df = datasource.copy()
             self.filepath = None
         else:
             raise TypeError("Invalid datasource type. Expected str or pd.DataFrame.")
 
+
         if isinstance(config, dict):
             self.config = config
+            self.config_producer = config['producer_config']
+            self.config_country = config['country_config']
+            self.config_ingred = config['active_ingred_config']
         else:
             raise TypeError("Invalid config type. Must be dictionary")
 
+        self._is_merged = is_merged
+
+    def apply_labeling(self, df:pd.DataFrame, sub_config:dict) -> pd.DataFrame:
+        if not sub_config:
+            return df
+        matched, unmatched = filter_data(
+           df, sub_config, return_unmatched=True, verbose=False
+        )
+        out_col = sub_config['output_col']
+        if not unmatched.empty and out_col not in unmatched.columns:
+            unmatched[out_col] = None
+        return (
+           pd.concat([matched, unmatched], ignore_index=True)
+           if not matched.empty
+           else df
+        )
+
+    def standardize_data(self):
+        processed_df = self.df.copy()
+        processed_df = self.apply_labeling(processed_df, self.config_producer)
+        processed_df = self.apply_labeling(processed_df, self.config_country)
+        processed_df = self.apply_labeling(processed_df, self.config_ingred)
+
+        ingred_col = (
+           self.config_ingred.get('output_col', 'hoatchat') 
+           if self.config_ingred 
+           else 'hoatchat'
+        )
+        merged_df = pd.merge(
+           processed_df,
+           self.drug_types,
+           how='left',
+           left_on=ingred_col,
+           right_on='Tên hoạt chất'
+        )
+
+        return LoadMedicalData(
+           merged_df, 
+           self.config, 
+           self.drug_types,
+           is_merged=True
+        )
+    
     def show_data(self) -> pd.DataFrame:
-        """Trả về toàn bộ dữ liệu đã load từ PATH
+        """Trả về toàn bộ dữ liệu đã load
 
         Returns:
             pd.DataFrame
         """
-        return self.df
-    
-    def get_watchlist(self, config:dict) -> pd.DataFrame:
-        """Lấy tất cả các mục đang được theo dõi trong config
-        
-        Args:
-        config (dict): Dictionary config
-        Returns:
-            pd.DataFrame: Dữ liệu đã được lọc
-        """
-        return filter_data(self.df, config)
+        return self.df.copy()
 
-    def filter(self, by:str=None, verbose=False):
-        data = filter_data(self.df, self.config, verbose=verbose)
+    def filter(
+        self,
+        column:str,
+        value:str
 
-        available_values = [val['output_value'] for val in self.config['filter']]
+    ):
+        if column not in self.df.columns:
+           raise ValueError(f'Column {column} not found in data!')
 
-        if by:
-            if by not in available_values:
-                raise ValueError(f'Filter value is not in config. Available values: {available_values}')
+        temp_df = self.df.copy()
 
-            filtered = data.loc[
-                data[self.config['output_col']] == by
-            ].reset_index(drop=True)
+        if value is None:
+           filtered_df = self.df.copy()
+        elif isinstance(value, (list, tuple, set)):
+           filtered_df = self.df.loc[self.df[column].isin(value)].copy()
         else:
-            filtered = data.copy().reset_index(drop=True)
+           filtered_df = self.df.loc[self.df[column] == value].copy()
 
-        return LoadMedicalData(datasource=filtered.reset_index(drop=True), config=self.config)
+        return LoadMedicalData(
+           filtered_df.reset_index(drop=True),
+           self.config,
+           self.drug_types,
+           is_merged=self._is_merged
+        )
 
-    def sum(self, value_col:Literal['thanhtien', 'soluong'], groupby:str=None):
+    def sum(
+        self,
+        value_col:Literal['thanhtien', 'soluong'],
+        groupby=None
+    ):
         if value_col not in self.df.columns:
-            raise KeyError(f'Column {value_col} not found')
-
+            raise KeyError("Column not found in dataframe")
         if groupby:
-            temp_df = self.df.copy()
-            return temp_df.groupby(groupby)[value_col].sum()
-        
+            cols = [groupby] if isinstance(groupby, str) else groupby
+            for col in cols:
+                if col not in self.df.columns:             
+                    raise KeyError("Column not found in dataframe")
+            return self.df.groupby(groupby)[value_col].sum()
+
         return self.df[value_col].sum()
-    
+
+    def average(
+        self,
+        value_col:Literal['thanhtien', 'soluong', 'gia'],
+        groupby=None
+    ):
+        
+        if value_col not in self.df.columns:
+            raise KeyError("Column not found in dataframe")
+        if groupby:
+            cols = [groupby] if isinstance(groupby, str) else groupby
+            for col in cols:
+                if col not in self.df.columns:             
+                    raise KeyError("Column not found in dataframe")
+            return self.df.groupby(groupby)[value_col].mean()
