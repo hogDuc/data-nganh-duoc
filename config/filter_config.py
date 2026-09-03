@@ -675,15 +675,20 @@ active_ingred_config = {
             'is_regex': True
         },
         {
-            "output_value": "Acetylsalicylic acid",
+            "output_value": "Acetylsalicylic acid (DL-lysin-acetylsalicylat)",
             "include_keyword": [
                 r"^acetylsalicylic acid[^+]*$"
+                r"^acid acetylsalicylic",
+                'acetylsalicylic acid',
+                'acid acetylsalicylic',
+                'aspirin',
+                'aspirin (Acetylsalicylic acid)',
             ],
             "exclude_keyword": [],
             'is_regex': True
         },
         {
-            "output_value": "Acetylsalicylic acid + Clopidogre",
+            "output_value": "Acetylsalicylic acid + clopidogre",
             "include_keyword": [
                 r"acetylsalicylic\s*acid\s*\+\s*clopidogrel\b",
             ],
@@ -699,11 +704,20 @@ active_ingred_config = {
             "is_regex": True
         },
         {
+            "output_value": "Acid amin + điện giải",
+            "include_keyword": [
+                r"acid amin\s*\+\s*dien giai",
+                'acid amin + chat dien giai',
+            ],
+            "exclude_keyword": [],
+            "is_regex": True
+        },
+        {
             "output_value": "Acid amin + glucose + lipid",
             "include_keyword": [
                 r"acid amin\s*\+\s*glucose\s*\+\s*lipid"
             ],
-            "exclude_keyword": [r"điện giải"],
+            "exclude_keyword": [r"dien giai"],
             "is_regex": True
         },
         {
@@ -1242,7 +1256,7 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Benazepril",
+            "output_value": "Benazepril hydroclorid",
             "include_keyword": [
                 r"^benazepril\b"
             ],
@@ -1477,6 +1491,13 @@ active_ingred_config = {
             "is_regex": True
         },
         {
+            "output_value": "Magnesi trisilicat + nhôm hydroxyd",
+            "include_keyword": [
+                'Magnesi hydroxyd (dưới dạng Magnesi hydroxyd 30% past) + nhôm oxyd (dưới dạng Nhôm Hydroxyd gel)',
+            ],
+            "exclude_keyword": [],
+        },
+        {
             "output_value": "Cafein citrat",
             "include_keyword": [
                 r"cafein\s*(\(citrat\)|citrat)"
@@ -1520,7 +1541,8 @@ active_ingred_config = {
         {
             "output_value": "Calci clorid",
             "include_keyword": [
-                r"^(calci|calcium) chlor?ide?( dihydrate| dihydrat)?"
+                r"^(calci|calcium) chlor?ide?( dihydrate| dihydrat)?",
+                'calci clorid'
             ],
             "exclude_keyword": [r"kali", r"natri"],
             "is_regex": True
@@ -2143,13 +2165,12 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Cyanocobalamin (Vitamin B12)",
+            "output_value": "Vitamin B12 (cyanocobalamin, hydroxocobalamin)",
             "include_keyword": [
-                r"^cyanocobalamin\b",
-                r"^vitamin b12(\s*\(cyanocobalamin.*)?$"
+                'vitamin b12',
+                'vitamin b12 (cyanocobalamin, hydroxocobalamin)',
             ],
-            "exclude_keyword": [r"vitamin b1", r"thiamin", r"\+"],
-            "is_regex": True
+            "exclude_keyword": []
         },
         {
             "output_value": "Cyclophosphamid",
@@ -2693,9 +2714,9 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Estradiol",
+            "output_value": "Estradiol valerate",
             "include_keyword": [
-                r"^estradiol\b"
+                r"^estradiol valerate"
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -2831,9 +2852,10 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Sắt + Acid folic",
+            "output_value": "Sắt sulfat + acid folic",
             "include_keyword": [
-                r"(ferrous sulfate|sắt.*sulfat|sắt fumarat|sắt.*(iii)?\s*hydroxyd.*polymaltose).*acid folic"
+                r"(ferrous sulfate|sat.*sulfat|sat fumarat|sat.*(iii)?\s*hydroxyd.*polymaltose).*acid folic",
+                r"s[ắa]t\s*sulfat\s*\+\s*folic\s*acid",
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -3114,13 +3136,16 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Dung dịch bù nước và điện giải (Oresol)",
+            "output_value": "Natri clorid + natri lactat + kali clorid + calcium clorid + glucose (Ringer lactat + glucose)",
             "include_keyword": [
                 r"glucose.*natri clorid.*(tri\s*)?natri\s*citrat.*kali clorid",
                 r"natri clorid.*kali clorid.*(natri citrat|tri natricitrat).*glucose",
                 r"natri clorid.*kali clorid.*monobasic kali phosphat.*dextrose",
                 r"natri clorid.*natri bicarbonat.*kali clorid.*dextrose",
-                r"natri lactat.*natri clorid.*kali clorid.*calcium clorid.*glucose"
+                r"natri lactat.*natri clorid.*kali clorid.*calcium clorid.*glucose",
+                'natri clorid, kali clorid, natri lactat, calci clorid.2h2o',
+                'natri clorid ;  natri lactat; kali clorid ; calci clorid dihydrat',
+                'natri clorid + kali clorid + natri lactat + calci clorid.2h2o',
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -3951,9 +3976,10 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Magnesi lactat + Pyridoxin (Vitamin B6)",
+            "output_value": "Vitamin B6 + magnesi lactat",
             "include_keyword": [
-                r"(magnesi(um)?\s*lactat(e)?.*(pyridoxin|vitamin b6)|(pyridoxin|vitamin b6).*magnesi(um)?\s*lactat(e)?)"
+                r"(magnesi(um)?\s*lactat(e)?.*(pyridoxin|vitamin b6)|(pyridoxin|vitamin b6).*magnesi(um)?\s*lactat(e)?)",
+                r"vitamin\s*b6\s*\+\s*magnesi",
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -4335,10 +4361,9 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Dung dịch Natri clorid",
+            "output_value": "Natri clorid",
             "include_keyword": [
                 r"^natri ch?lorid$",
-                r"mỗi 8ml chứa:\s*natri clorid"
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -4482,10 +4507,11 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Noradrenalin",
+            "output_value": "Nor-epinephrin (Nor- adrenalin)",
             "include_keyword": [
                 r"nor(-|\s*)adrenalin",
-                r"nor(-|\s*)epinephrin"
+                r"nor(-|\s*)epinephrin",
+                'Nor- adrenalin'
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -5610,7 +5636,8 @@ active_ingred_config = {
         {
             "output_value": "Vitamin B1 + B6 + B12",
             "include_keyword": [
-                r"(thiamin.*pyridox.*cyanocobalamin|vitamin b1.*b6.*b12|vitamin b1.*vitamin b6.*vitamin b12)"
+                r"(thiamin.*pyridox.*cyanocobalamin|vitamin b1.*b6.*b12|vitamin b1.*vitamin b6.*vitamin b12)",
+                'vitamin b1 (thiamin mononitrat) + vitamin b12 (cyanocobalamin) + vitamin B6 (pyridoxin hydroclorid)',
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -5945,9 +5972,10 @@ active_ingred_config = {
             "is_regex": True
         },
         {
-            "output_value": "Vitamin A + Vitamin D",
+            "output_value": "Vitamin A + D2 (Vitamin A + D3)",
             "include_keyword": [
-                r"vitamin a\s*\+\s*(vitamin\s*)?d"
+                r"vitamin a\s*\+\s*(vitamin\s*)?d",
+                r"vitamin\s*a\s*\(\s*retinol\s*palmitat\s*\)\s*\+\s*vitamin\s*d3\s*\(\s*cholecalciferol\s*\)"
             ],
             "exclude_keyword": [],
             "is_regex": True
@@ -5963,9 +5991,10 @@ active_ingred_config = {
         {
             "output_value": "Vitamin D3",
             "include_keyword": [
-                r"^vitamin d3\b"
+                r"^vitamin d3\b",
+                'vitamin d3 (cholecalciferol)'
             ],
-            "exclude_keyword": [r"calci", r"vitamin a", r"\+"],
+            "exclude_keyword": [],
             "is_regex": True
         },
         {
@@ -6011,10 +6040,25 @@ active_ingred_config = {
         {
             "output_value": "Đồng sulfat",
             "include_keyword": [
-                r"đồng sulfat"
+                r"dong sulfat"
             ],
             "exclude_keyword": [],
             "is_regex": True
+        },
+        {
+            "output_value": "Nhũ dịch lipid",
+            "include_keyword": [
+                'nhu dich lipid',
+                'Nhu dich lipid (dau dau nanh; lecithin trung; glycerol)'
+            ],
+            "exclude_keyword": [],
+        },
+        {
+            "output_value": "Manitol",
+            "include_keyword": [
+                'manitol',
+            ],
+            "exclude_keyword": [],
         }
     ]
 }
