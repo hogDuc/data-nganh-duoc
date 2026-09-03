@@ -1,14 +1,20 @@
 """
 Configuration cho các bộ lọc.
+Các key config:
+    producer_config: bộ lọc cho nhà sản xuất
+    country_config: bộ lọc cho quốc gia
+    active_ingredient_config: bộ lọc cho nguyên liệu
 
-Các mục bắt buộc:
-input_col: Tên cột cần lọc của dữ liệu gốc, ví dụ 'nhasx'
-output_col: Tên cột gán nhãn cho đầu ra, ví dụ 'ticker'
-filter: Bộ lọc chính
-    output_value: Giá trị đã chuẩn hóa cho output, ví dụ phân loại theo nhà sản xuất thì sẽ đưa vào tên nhà sản xuất
-    include_keyword: Các từ khóa để lọc trong dữ liệu
-    exclude_keyword: Các từ khóa để loại ra các trường hợp bị lẫn
-    is_regex: True cho một số trường hợp đặc biệt. Ví dụ sản xuất trung gian
+Các mục bắt buộc cho các config:
+config_name:{
+    input_col: Tên cột cần lọc của dữ liệu gốc, ví dụ 'nhasx'
+    output_col: Tên cột gán nhãn cho đầu ra, ví dụ 'ticker'
+    filter: Bộ lọc chính
+        output_value: Giá trị đã chuẩn hóa cho output, ví dụ phân loại theo nhà sản xuất thì sẽ đưa vào tên nhà sản xuất
+        include_keyword: Các từ khóa để lọc trong dữ liệu
+        exclude_keyword: Các từ khóa để loại ra các trường hợp bị lẫn
+        is_regex: True cho một số trường hợp đặc biệt. Ví dụ sản xuất trung gian
+}
 Lưu ý:
 Các keyword viết dưới dạng không dấu, viết thường, không viết hoa.
 Các keyword BẮT BUỘC phải để trong ngoặc '' hoặc "", và chuỗi các keyword phải được đặt trong ngoặc [].
