@@ -275,7 +275,7 @@ class LoadMedicalData:
           datasource:str|pd.DataFrame, 
           config:dict, 
           drug_types_path:str|pd.DataFrame,
-          is_merged=False
+          processed=False
         ):
 
         if isinstance(drug_types_path, str) and drug_types_path.endswith('xlsx'):
@@ -310,7 +310,8 @@ class LoadMedicalData:
         else:
             raise TypeError("Invalid config type. Must be dictionary")
 
-        self._is_merged = is_merged
+        if not processed:
+           self.standardize_data()
 
     def apply_labeling(self, df:pd.DataFrame, sub_config:dict) -> pd.DataFrame:
         if not sub_config:
@@ -328,29 +329,21 @@ class LoadMedicalData:
         )
 
     def standardize_data(self):
-        processed_df = self.df.copy()
-        processed_df = self.apply_labeling(processed_df, self.config_producer)
-        processed_df = self.apply_labeling(processed_df, self.config_country)
-        processed_df = self.apply_labeling(processed_df, self.config_ingred)
+        self.df = self.apply_labeling(self.df, self.config_producer)
+        self.df = self.apply_labeling(self.df, self.config_country)
+        self.df = self.apply_labeling(self.df, self.config_ingred)
 
         ingred_col = (
            self.config_ingred.get('output_col', 'hoatchat') 
            if self.config_ingred 
            else 'hoatchat'
         )
-        merged_df = pd.merge(
-           processed_df,
+        self.df = pd.merge(
+           self.df,
            self.drug_types,
            how='left',
            left_on=ingred_col,
            right_on='Tên hoạt chất'
-        )
-
-        return LoadMedicalData(
-           merged_df, 
-           self.config, 
-           self.drug_types,
-           is_merged=True
         )
     
     def show_data(self) -> pd.DataFrame:
@@ -370,8 +363,6 @@ class LoadMedicalData:
         if column not in self.df.columns:
            raise ValueError(f'Column {column} not found in data!')
 
-        temp_df = self.df.copy()
-
         if value is None:
            filtered_df = self.df.copy()
         elif isinstance(value, (list, tuple, set)):
@@ -383,7 +374,7 @@ class LoadMedicalData:
            filtered_df.reset_index(drop=True),
            self.config,
            self.drug_types,
-           is_merged=self._is_merged
+           processed=True
         )
 
     def sum(
@@ -416,3 +407,49 @@ class LoadMedicalData:
                 if col not in self.df.columns:             
                     raise KeyError("Column not found in dataframe")
             return self.df.groupby(groupby)[value_col].mean()
+
+        return self.df[value_col].mean()
+
+    def get_unmatched(
+        self,
+        config_type: Literal['producer', 'country', 'ingred'],
+        unique: bool = True
+    ) -> Union[list, pd.DataFrame]:
+        """Xem các giá trị chưa match/chưa được gán nhãn theo từng loại config.
+
+        Args:
+            config_type (Literal['producer', 'country', 'ingred']): Loại config cần kiểm tra.
+            unique (bool, optional): Nếu True, trả về list các giá trị gốc duy nhất chưa match.
+                                     Nếu False, trả về DataFrame đầy đủ của các dòng chưa match. Defaults to True.
+
+        Returns:
+            Union[list, pd.DataFrame]: Danh sách giá trị hoặc DataFrame các dòng chưa match.
+        """
+        config_map = {
+            'producer': self.config_producer,
+            'country': self.config_country,
+            'ingred': self.config_ingred
+        }
+
+        if config_type not in config_map:
+            raise ValueError(f"Invalid config_type: '{config_type}'. Choose from: {list(config_map.keys())}")
+
+        sub_cfg = config_map[config_type]
+        if not sub_cfg:
+            raise ValueError(f"Config for '{config_type}' is not configured.")
+
+        input_col = sub_cfg['input_col']
+        output_col = sub_cfg['output_col']
+
+        # Dòng chưa match là dòng có output_col là NaN/None hoặc rỗng
+        unmatched_mask = self.df[output_col].isna() | (self.df[output_col] == '')
+        unmatched_df = self.df.loc[unmatched_mask]
+
+        if unique:
+            # Lấy các giá trị gốc ban đầu chưa được phân loại, loại bỏ null/trắng
+            unmatched_values = unmatched_df[input_col].dropna().unique().tolist()
+            return [val for val in unmatched_values if str(val).strip()]
+
+        print(f"Total unmatched rows for '{config_type}': {len(unmatched_df)}")
+        
+        return unmatched_df.reset_index(drop=True)
