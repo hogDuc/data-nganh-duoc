@@ -30,7 +30,7 @@ Về cấu trúc của filter gồm các mục bắt buộc sau:
 ```
 Ví dụ:
 ```
-producer_config = {
+producer_config:{
     "input_col":'nhasx',
     "output_col":"ticker",
     'filter':[
