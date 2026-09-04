@@ -303,6 +303,7 @@ class LoadMedicalData:
            )
            self.drug_types['Loại thuốc 1'] = self.drug_types['Loại thuốc 1'].ffill()
            self.drug_types['Loại thuốc 2'] = self.drug_types['Loại thuốc 2'].ffill()
+           
         elif isinstance(drug_types_path, pd.DataFrame):
            self.drug_types = drug_types_path.copy()
         else:
@@ -311,6 +312,7 @@ class LoadMedicalData:
         if isinstance(datasource, str):
             self.filepath = datasource
             self.df = read_xml(self.filepath)
+            self.df = self.df.replace("", None)
             self.df = self.df[~self.df[['ma', 'ten', 'hoatchat']].isna().any(axis=1)]
             self.df = validate_medical_df(self.df)
 

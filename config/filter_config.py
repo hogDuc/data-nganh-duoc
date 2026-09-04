@@ -161,7 +161,8 @@ config = {
                     r"^viet nam", 
                     r'^vietnam',
                     r'^viet\\s*nam',
-                    'viet nam'
+                    'viet nam',
+                    'vn'
                 ],
                 "exclude_keyword": [],
                 "is_regex": True
@@ -174,23 +175,41 @@ config = {
                     r'^my',
                     r"cssx\s*:\s*my\b",
                     r"cssx\s*:\s*my\b",
+                    r"san xuat\s*:\s*my[^;]\b",
+                    r"san xuat\s*:\s*my\b",
                     r"nuoc san xuat\s*:\s*my\b",
+                    'united states of america',
+                    'united states',
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:my|hoa ky|usa|united states)\b",
+                    r"san xuat ong thuoc[^;:\n]*[:\s]+(?:my|hoa ky)\b",
+                    r"^united states\b",
+                    r"^hoa ky\b",
+                    r"^my\b"
                 ],
                 "exclude_keyword": [],
                 "is_regex":True
             },
             {
                 "output_value": "Ai Cập",
-                "include_keyword": ["ai cap"],
-                "exclude_keyword": []
+                "include_keyword": [r"^ai cap", r'^egypt'],
+                "exclude_keyword": [],
+                "is_regex":True
+            },
+            {
+                "output_value": "Iceland",
+                "include_keyword": [
+                    "iceland",
+                ],
+                "exclude_keyword": [],
             },
             {
                 "output_value": "Ireland",
                 "include_keyword": [
-                    "ai len", 
-                    "ireland", 
+                    r"ai len", 
+                    r"ireland", 
                     r"^ireland",
-                    "ailen"
+                    r"ai-len",
+                    r"ailen"
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
@@ -199,11 +218,34 @@ config = {
                 "output_value": "Đức",
                 "include_keyword": [
                     r"cssx\s*:\s*duc\b",
+                    '- duc',
+                    r"co so xuat xuong\s*:\s*duc\b",
                     r"cssx\s*:\s*germany\b",
+                    r"san xuat\s*:\s*germany\b",
+                    r"nsx, ndc\s*:\s*germany\b",
                     r"co so san xuat\s*:\s*duc\b",
+                    r"cs san xuat\s*:\s*duc\b",
+                    r"sx va dg so cap\s*:\s*duc\b",
+                    r"cssx va dq so cap\s*:\s*duc\b",
+                    r"cssx va dong goi so cap\s*:\s*duc\b",
+                    r"cssx va dgsc\s*:\s*duc\b",
+                    r"csxx\s*:\s*duc\b",
+                    r"nuoc san xuat\s*:\s*duc\b",
+                    r"nuoc sx\s*:\s*duc\b",
+                    r"nha sx\s*:\s*duc\b",
+                    r"nha san xuat\s*:\s*germani\b",
+                    r"nuoc san xuat va xuat xuong\s*:\s*germani\b",
                     r"^duc",
                     r"^germany",
-                    
+                    r"^germamy",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|nha san xuat|co so tron|nuoc tron|1\.)[^;:\n]*[:\s]+(?:duc|germany|gerrmany|gemany)\b",
+                    r"cssx[^;:\n]*(thuoc bot|dung moi)[^;:\n]*[:\s]+(?:duc|germany)\b",
+                    r"^de\b",
+                    r"^ger\b",
+                    r"^germany\b",
+                    r"^gemany\b",
+                    r"^gerrmany\b",
+                    r"^duc\b"
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
@@ -213,7 +255,12 @@ config = {
                 "include_keyword": [
                     r"^anh",
                     r"^united kingdom",
-                    
+                    r"san xuat\s*:\s*anh[^;]",
+                    r"cssx\s*:\s*anh",
+                    r"cssx va dgsc\s*:\s*anh",
+                    r"(?:cssx|co so (?:san xuat|sx)|nuoc (?:san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:united kingdom|uk|england|anh)\b",
+                    'uk',
+                    'england'
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
@@ -238,12 +285,24 @@ config = {
                 'is_regex': True
             },
             {
+                "output_value": "Brazil",
+                "include_keyword": [
+                    r"^brazil",
+                ],
+                "exclude_keyword": [],
+                'is_regex': True
+            },
+            {
                 "output_value": "Áo",
                 "include_keyword": [
                     r"^austria",
                     r"^ao",
                     r"cssx\s*:\s*ao\b",
-                    
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|1\.)[^;:\n]*[:\s]+(?:ao|austria|autria)\b",
+                    r"cssx[^;:\n]*(bot pha tiem|ban tp|btp)[^;:\n]*[:\s]+(?:ao|austria)\b",
+                    r"^autria\b",
+                    r"^austria\b",
+                    r"^ao\b"
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
@@ -253,8 +312,9 @@ config = {
                 "include_keyword": [
                     r"^ba lan",
                     r"cssx[^;]*:\s*-?\s*ba lan\b",
-                    r"^poland"
-                    
+                    r"^poland",
+                    r"co so san xuat, dong goi, kiem soat lo*:\s*-?\s*ba lan\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:ba lan|poland)\b",
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
@@ -263,14 +323,18 @@ config = {
                 "output_value": "Bangladesh",
                 "include_keyword": [
                     r"^bangladesh",
-                    
+                    r'^bang la det'
                 ],
                 "exclude_keyword": [],
                 'is_regex': True
             },
             {
                 "output_value": "Belarus",
-                "include_keyword": [r"^belarus\b", r"\bbach nga\b"],
+                "include_keyword": [
+                    r"^belarus\b", 
+                    r"\bbach nga\b", 
+                    r'belarut'
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -278,6 +342,7 @@ config = {
                 "output_value": "Bỉ",
                 "include_keyword": [
                     r"^bi\b",
+                    'BỉGN1.22268',
                     r"^belgium\b",
                     r"cssx[^;]*:\s*bi\b",
                     r"cssx[^;]*:\s*belgium\b",
@@ -287,7 +352,14 @@ config = {
             },
             {
                 "output_value": "Bulgaria",
-                "include_keyword": [r"^bulgaria\b"],
+                "include_keyword": [
+                    r"^bulgaria\b",
+                    r'^bungaria',
+                    r'^bulgary',
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:bulgaria|bungaria|bulgari)\b",
+                    r"^bulgari(a)?\b",
+                    r"^bungaria\b"
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -295,16 +367,23 @@ config = {
                 "output_value": "Bồ Đào Nha",
                 "include_keyword": [
                     r"^bo dao nha\b",
+                    r"^bodaonha\b",
                     r"^portugal\b",
                     r"cssx[^;]*:\s*bo dao nha\b",
                     r"cssx[^;]*:\s*portugal\b",
+                    r"[-.\s]+(?:bo dao nha|portugal)\b",
                 ],
                 "exclude_keyword": [r"csdg[^;]*:\s*bo dao nha\b"],
                 "is_regex": True,
             },
             {
                 "output_value": "Canada",
-                "include_keyword": [r"^canada\b"],
+                "include_keyword": [
+                    r"^canada\b",
+                    r"^cssx*:\s*canada\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+canada\b",
+                    r"^canada\b"
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -324,8 +403,12 @@ config = {
                 "output_value": "Síp",
                 "include_keyword": [
                     r"^sip\b",
+                    r"^ch sip\b",
                     r"^cyprus\b",
+                    r"^cuprus\b",
+                    r"^cyrus\b",
                     r"\bcong hoa sip\b",
+                    r"^ch sip",
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
@@ -337,19 +420,28 @@ config = {
                     r"^czech\b",
                     r"\bczech republic\b",
                     r"\bcong hoa sec\b",
+                    r"(cssx|ccsx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|1\.)[^;:\n]*[:\s]+(?:sec|czech|czechia)\b",
+                    r"^ch sec\b",
+                    r"^czechia\b",
+                    r"^czech\b",
+                    r"^sec\b"
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Đan Mạch",
-                "include_keyword": [r"^dan mach\b", r"^denmark\b"],
+                "include_keyword": [
+                    r"^dan mach\b", 
+                    r"^denmark\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:dan mach|denmark)\b",
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Đài Loan",
-                "include_keyword": [r"^dai loan\b", r"^taiwan\b"],
+                "include_keyword": [r"^dai loan\b", r"^taiwan\b",r"[-.\s]+(?:dai loan|taiwan)\b",],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -360,23 +452,52 @@ config = {
                 "is_regex": True,
             },
             {
+                "output_value": "New Zealand",
+                "include_keyword": [r"^new zealand\b"],
+                "exclude_keyword": [],
+                "is_regex": True,
+            },
+            {
                 "output_value": "Hà Lan",
                 "include_keyword": [
                     r"^ha lan\b",
                     r"^the netherlands\b",
                     r"^netherlands\b",
+                    r"^netherland\b",
                     r"cssx[^;]*:\s*ha lan\b",
                 ],
                 "exclude_keyword": [r"csdg[^;]*:\s*ha lan\b", r"dong goi:\s*ha lan\b"],
                 "is_regex": True,
             },
             {
+                "output_value": "Phillipines",
+                "include_keyword": [
+                    r"^philipin\b",
+                ],
+                "exclude_keyword": [],
+                "is_regex": True,
+            },
+            {
+                "output_value": "Triều Tiên",
+                "include_keyword": [
+                    r"^north korea\b",
+                ],
+                "exclude_keyword": [],
+                "is_regex": True,
+            },
+            {
                 "output_value": "Hàn Quốc",
                 "include_keyword": [
                     r"^han quoc\b",
+                    r"^hanquoc",
+                    r"^hq",
+                    r"^korean\b",
+                    r"^kokea\b",
                     r"^korea\b",
                     r"^south korea\b",
                     r"^republic of korea\b",
+                    r"cssx[^;]*:\s*han quoc\b",
+                    r'^rephublic of korea',
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
@@ -385,6 +506,7 @@ config = {
                 "output_value": "Hungary",
                 "include_keyword": [
                     r"^hungary\b",
+                    'hunga ry',
                     r"^hungari\b",
                     r"^bungary\b",
                     r"\begis-hungary\b",
@@ -394,7 +516,15 @@ config = {
             },
             {
                 "output_value": "Hy Lạp",
-                "include_keyword": [r"^hy lap\b", r"^greece\b"],
+                "include_keyword": [
+                    r"^hy lap\b", 
+                    r"^hylap\b", 
+                    r"^greece\b",
+                    r"cssx va dong goi cap 1[^;]*:\s*hy lap\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:hy lap|greece)\b",
+                    r"^hy lap\b",
+                    r"^greece\b"
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -406,13 +536,19 @@ config = {
             },
             {
                 "output_value": "Ấn Độ",
-                "include_keyword": [r"^an do\b", r"^india\b"],
+                "include_keyword": [
+                    r"^an do\b", 
+                    r"^india\b",
+                    r"^in\b",
+                    'ando',
+                    r"cssx ban thanh pham[^;]*:\s*an do\b",
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Latvia",
-                "include_keyword": [r"^latvia\b", r"cssx[^;]*:\s*latvia\b"],
+                "include_keyword": [r"^latvita\b", r"^latvia\b", r"cssx[^;]*:\s*latvia\b"],
                 "exclude_keyword": [
                     r"xx:\s*latvia\b",
                     r"xuat xuong[^;]*:\s*latvia\b",
@@ -427,13 +563,20 @@ config = {
             },
             {
                 "output_value": "Bắc Macedonia",
-                "include_keyword": [r"^macedonia\b"],
+                "include_keyword": [
+                    r"^macedonia\b",
+                    'cong hoa Macedonia',
+                    'cong hoa Macedonia',
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Malaysia",
-                "include_keyword": [r"^malaysia\b"],
+                "include_keyword": [
+                    r"^malaysia\b",
+                    r'ma-lai-xi-a',
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -451,13 +594,30 @@ config = {
             },
             {
                 "output_value": "Nga",
-                "include_keyword": [r"^nga\b", r"^russia\b", r"^russian\b"],
+                "include_keyword": [
+                    r"^nga\b", 
+                    r"^russia\b", 
+                    r"^russian\b",
+                    r"^rusia\b",
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Nhật Bản",
-                "include_keyword": [r"^nhat ban\b", r"^nhat\b", r"^japan\b"],
+                "include_keyword": [
+                    r"^nhat ban\b", 
+                    r"^nhat\b", 
+                    r"^japan\b",
+                    r"co so san xuat *\s*nhat ban\b",
+                    r"cssx *:\s*nhat ban\b",
+                    r"nuoc san xuat *:\s*nhat ban\b",
+                    r"co so sx *\s*nhat ban\b",
+                    r"sx *:\s*nhat ban\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|nsx|dc cssx)[^;:\n]*[:\s]+(?:nhat(?: ban)?|japan)\b",
+                    r"^japan\b",
+                    r"^nhat(?: ban)?\b"
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -472,8 +632,13 @@ config = {
                 "include_keyword": [
                     r"^phap\b",
                     r"^france\b",
+                    r"^fr\b",
                     r"cssx[^;]*:\s*phap\b",
                     r"co so san xuat[^;]*:\s*phap\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|nha san xuat|1\.)[^;:\n]*[:\s]+(?:phap|france)\b",
+                    r"san xuat ong thuoc[^;:\n]*[:\s]+(?:phap|france)\b",
+                    r"^(\(france\)\s*)?phap\b",
+                    r"^france\b"
                 ],
                 "exclude_keyword": [
                     r"kiem nghiem va xuat xuong:\s*phap\b",
@@ -483,7 +648,13 @@ config = {
             },
             {
                 "output_value": "Phần Lan",
-                "include_keyword": [r"^phan lan\b", r"^finland\b"],
+                "include_keyword": [
+                    r"^phan lan\b", 
+                    r"^finland\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:phan lan|finland)\b",
+                    r"^finland\b",
+                    r"^phan lan\b"
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -492,19 +663,31 @@ config = {
                 "include_keyword": [
                     r"^puerto rico\b",
                     r"cssx[^;]*:\s*puerto rico\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+puerto rico\b",
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Romania",
-                "include_keyword": [r"^romania\b", r"^romani\b", r"^rumani\b"],
+                "include_keyword": [
+                    r"^romania\b", 
+                    r"^romani\b", 
+                    r"^rumani\b",
+                    'RomaniaGN1.22073',
+                    'RomaniaGN1.22075',
+                    r'^rumania'
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Singapore",
-                "include_keyword": [r"^singapore\b"],
+                "include_keyword": [
+                    r"^singapore\b",
+                    r"^singgapore\b",
+                    'singapor'
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -515,6 +698,8 @@ config = {
                     r"^slovaka\b",
                     r"\bsx, dg, kn:\s*slovakia\b",
                     r"\bsan xuat[^:]*:\s*slovakia\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+slovakia\b",
+                    r"^slovakia\b"
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
@@ -532,10 +717,17 @@ config = {
                 "output_value": "Tây Ban Nha",
                 "include_keyword": [
                     r"^tay ban nha\b",
+                    r"^taybannha\b",
                     r"^tay ba nha\b",
                     r"^spain\b",
+                    'ban nha',
+                    'tbn',
                     r"cssx[^;]*:\s*tay ban nha\b",
                     r"cssx[^;]*:\s*tay ba nha\b",
+                    r"cssx[^;]*:\s*spain\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|nsx)[^;:\n]*[:\s]+(?:tay ban nha|spain)\b",
+                    r"^tay ban nh(a)?\b",
+                    r"^spain\b"
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
@@ -552,14 +744,22 @@ config = {
                     r"^tho nhi ky\b",
                     r"^turkey\b",
                     r"co so san xuat[^;]*:\s*tho nhi ky\b",
+                    r"csxx[^;]*:\s*tho nhi ky\b",
                     r"nuoc san xuat[^;]*:\s*tho nhi ky\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:tho nhi k[iy]|turkey)\b",
+                    r"^tho nhi k[iy]\b",
+                    r"^turkey\b"
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
             {
                 "output_value": "Thụy Điển",
-                "include_keyword": [r"^thuy dien\b", r"^sweden\b"],
+                "include_keyword": [
+                    r"^thuy dien\b", 
+                    r"^sweden\b",
+                    'AstraZeneca AB - Thụy Điển',
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -571,6 +771,10 @@ config = {
                     r"^switzerland\b",
                     r"cssx[^;]*:\s*thuy si\b",
                     r"cssx[^;]*:\s*thuy sy\b",
+                    r"nha san xuat*:\s*thuy sy\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?|nha san xuat)[^;:\n]*[:\s]+(?:thuy s[yi]|switzerland|switzeland|switezerland|switzerlan d)\b",
+                    r"^(switzerland|switzeland|switezerland|switzerlan d)\b",
+                    r"^thuy s[yi]\b"
                 ],
                 "exclude_keyword": [
                     r"dong goi[^;]*:\s*thuy sy\b",
@@ -585,6 +789,7 @@ config = {
                 "include_keyword": [
                     r"^trung quoc\b",
                     r"^china\b",
+                    r"^trung hoa\b",
                     r"\bcong hoa nhan dan trung hoa\b",
                 ],
                 "exclude_keyword": [],
@@ -592,7 +797,19 @@ config = {
             },
             {
                 "output_value": "Ukraine",
-                "include_keyword": [r"^ukraine\b"],
+                "include_keyword": [
+                    r"^ukraine\b",
+                    r'^ukraina',
+                    r'u-crai-na'
+                ],
+                "exclude_keyword": [],
+                "is_regex": True,
+            },
+            {
+                "output_value": "Yemen",
+                "include_keyword": [
+                    r"^yemen$",
+                ],
                 "exclude_keyword": [],
                 "is_regex": True,
             },
@@ -600,11 +817,22 @@ config = {
                 "output_value": "Ý",
                 "include_keyword": [
                     r"^y\b",
+                    r"(cssx|co so (san xuat|sx)|nuoc (san xuat|sx)|s(?:an )?x(?:uat)?)[^;:\n]*[:\s]+(?:y|italy|italia|i-ta-li-a)\b",
+                    r"^i-ta-li-a\b",
                     r"^italy\b",
                     r"^italia\b",
+                    r"^y\b"
+                    r"^italy\b",
+                    r"^italia\b",
+                    r"^italya\b",
                     r"^ytaly\b",
+                    r"nuoc san xuat[^;]*:\s*italy\b",
                     r"cssx[^;]*:\s*y\b",
                     r"co so san xuat[^;]*:\s*y\b",
+                    r"nuoc san xuat[^;]*:\s*y\b",
+                    r"san xuat[^;]*:\s*y\b",
+                    r"cssx ban thanh pham, dg so cap va thu cap*:\s*italy\b",
+                    r"co so san xuat ban thanh pham, dong goi so cap va thu cap*:\s*y\b",
                 ],
                 "exclude_keyword": [],
                 "is_regex": True,
@@ -614,9 +842,22 @@ config = {
                 "include_keyword": [
                     r"^viet nam\b",
                     r"^vietnam\b",
-                    r"\bduoc pham am vi\b",
+                    r'v iet nam',
+                    r'vien nam',
+                    r'iet nam',
+                    r'vet nam',
+                    r'vien vam',
+                    r'viet nan',
                 ],
                 "exclude_keyword": [r"\(\s*viet nam[^)]*dong goi"],
+                "is_regex": True,
+            },
+            {
+                "output_value": "Cuba",
+                "include_keyword": [
+                    r"^cuba\b",
+                ],
+                "exclude_keyword": [],
                 "is_regex": True,
             }
         ]
