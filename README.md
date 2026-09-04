@@ -34,6 +34,8 @@ __Truy cập file demo tại [đây]('tests/example.ipynb').__
 
 ### Cách 1: Sử dụng Antigravity extension để nhập giá trị filter mới
 
+[Hướng dẫn cài đặt Antigravity extension cho VSCode](https://antigravity.google/docs/ide/extensions/vscode/)
+
 Trong trường hợp còn sót các giá trị chưa được lọc, hoặc thêm mới, ví dụ đối với bộ lọc theo quốc gia sản xuất có giá trị gốc là _'CSSX: Nhật Bản; CSĐG: Anh; CSkiểm tra chất lượng và XX lô: Thụy Điển'_:
 - **Bước 1**: Vào chatbox Antigravity, nhập `/standardize_country` để sử dụng skill và đưa giá trị raw ở trên vào ô chat. 
 
