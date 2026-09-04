@@ -25,7 +25,7 @@ Về cấu trúc của filter gồm các mục bắt buộc sau:
             output_value: Giá trị đã chuẩn hóa cho output, ví dụ phân loại theo nhà sản xuất thì sẽ đưa vào tên nhà sản xuất
             include_keyword: Các từ khóa để lọc trong dữ liệu
             exclude_keyword: Các từ khóa để loại ra các trường hợp bị lẫn
-            is_regex: True cho một số trường hợp đặc biệt. Ví dụ sản xuất trung gian
+            is_regex: True cho một số trường hợp đặc biệt. Ví dụ 'sản xuất trung gian'
         ]
 ```
 Ví dụ:

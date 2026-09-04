@@ -10,33 +10,34 @@ from pydantic import TypeAdapter
 from typing import Literal
 
 '''
-Đây là các function cần thiết
+Đây là các function cần thiết cho việc xử lý dữ liệu
 '''
 
 def validate_medical_df(
     df: pd.DataFrame, return_as: str = "df"
 ) -> Union[pd.DataFrame, list[MedicineRecord]]:
-  """Validates DataFrame rows against MedicineRecord schema.
+    """Đảm bảo các cột của dữ liệu được đúng loại data.
 
-  Args:
-      df: Raw extracted DataFrame from read_xml()
-      return_as: 'df' to get typed DataFrame, or 'models' to get
-        list[MedicineRecord]
-  """
-  adapter = TypeAdapter(list[MedicineRecord])
+    Args:
+        df: Dữ liệu raw đọc từ file của APD
+        return_as: 'df' to get typed DataFrame, or 'models' to get
+            list[MedicineRecord]
+    """
+    adapter = TypeAdapter(list[MedicineRecord])
 
-  # Convert DataFrame to records dict and validate in batch
-  records = df.to_dict(orient="records")
-  validated_records = adapter.validate_python(records)
+    # Convert DataFrame to records dict and validate in batch
+    records = df.to_dict(orient="records")
+    validated_records = adapter.validate_python(records)
 
-  if return_as == "models":
-    return validated_records
+    if return_as == "models":
+        return validated_records
 
-  # Reconstruct DataFrame with clean, typed columns
-  validated_dicts = [
-      rec.model_dump(exclude_unset=False) for rec in validated_records
-  ]
-  return pd.DataFrame(validated_dicts)
+    # Reconstruct DataFrame with clean, typed columns
+    validated_dicts = [
+        rec.model_dump(exclude_unset=False) for rec in validated_records
+    ]
+
+    return pd.DataFrame(validated_dicts)
 
 def remove_vietnamese_diacritics(text):
     """Loại bỏ dấu tiếng Việt và chuẩn hóa khoảng trắng/xuống dòng
@@ -64,60 +65,76 @@ def remove_vietnamese_diacritics(text):
     return text.strip().lower()
 
 def build_regex_pattern(keywords, is_regex: bool = False):
-  if not keywords:
-    return None
-  if isinstance(keywords, str):
-    keywords = [keywords]
+    """Xây dựng chuỗi regex pattern từ danh sách từ khóa.
 
-  processed = []
-  for k in keywords:
-    if not k or not str(k).strip():
-      continue
-    cleaned = remove_vietnamese_diacritics(k)
-    # Use (?:...) non-capturing group to prevent regex warnings
-    if is_regex:
-      processed.append(f"(?:{cleaned})")
-    else:
-      processed.append(f"(?:{re.escape(cleaned)})")
+    Hàm chuẩn hóa các từ khóa bằng cách loại bỏ dấu tiếng Việt, lọc bỏ
+    chuỗi rỗng, bọc từng từ khóa trong non-capturing group `(?:...)`, 
+    và ghép lại bằng toán tử OR (`|`).
 
-  return "|".join(processed) if processed else None
+    Args:
+        keywords (Union[str, Iterable[str], None]): Chuỗi đơn lẻ hoặc danh sách
+            các từ khóa cần tạo mẫu regex.
+        is_regex (bool, optional): Nếu True, coi từ khóa đã là cú pháp regex hợp lệ.
+            Nếu False, áp dụng `re.escape()` để vô hiệu hóa ký tự đặc biệt. 
+            Mặc định là False.
+
+    Returns:
+        Optional[str]: Chuỗi regex hoàn chỉnh dạng `(?:k1)|(?:k2)`, hoặc None 
+            nếu danh sách đầu vào rỗng/không hợp lệ.
+    """
+    if not keywords:
+        return None
+    if isinstance(keywords, str):
+        keywords = [keywords]
+
+    processed = []
+    for k in keywords:
+        if not k or not str(k).strip():
+            continue
+        cleaned = remove_vietnamese_diacritics(k)
+
+        if is_regex:
+            processed.append(f"(?:{cleaned})")
+        else:
+            processed.append(f"(?:{re.escape(cleaned)})")
+
+    return "|".join(processed) if processed else None
 
 
 def read_xml(path: str) -> pd.DataFrame:
-  """Fast XML parser that correctly extracts cell values without creating ghost/empty columns."""
-  parser = etree.XMLParser(recover=True, encoding="utf-8")
+    parser = etree.XMLParser(recover=True, encoding="utf-8")
 
-  with open(path, "rb") as f:
-    tree = etree.parse(f, parser=parser)
+    with open(path, "rb") as f:
+        tree = etree.parse(f, parser=parser)
 
-  root = tree.getroot()
+    root = tree.getroot()
 
-  rows = []
-  for row in root.xpath('.//*[local-name()="Row"]'):
-    cells = []
-    for cell in row.xpath('./*[local-name()="Cell"]'):
-      # Get text inside <Data> if present, otherwise directly inside <Cell>
-      text = cell.xpath('string(.)').strip()
-      cells.append(text)
+    rows = []
+    for row in root.xpath('.//*[local-name()="Row"]'):
+        cells = []
+        for cell in row.xpath('./*[local-name()="Cell"]'):
+        # Get text inside <Data> if present, otherwise directly inside <Cell>
+            text = cell.xpath('string(.)').strip()
+            cells.append(text)
 
-    # Only include non-empty rows
-    if any(cells):
-      rows.append(cells)
+        # Only include non-empty rows
+        if any(cells):
+            rows.append(cells)
 
-  if not rows or len(rows) < 2:
-    return pd.DataFrame()
+    if not rows or len(rows) < 2:
+        return pd.DataFrame()
 
-  # Set header from row 0
-  headers = [col.strip() for col in rows[0]]
-  df = pd.DataFrame(rows[1:], columns=headers)
+    # Set header from row 0
+    headers = [col.strip() for col in rows[0]]
+    df = pd.DataFrame(rows[1:], columns=headers)
 
-  # Drop columns where the header is completely empty ('' or whitespace)
-  df = df.loc[:, [col != "" for col in df.columns]]
+    # Drop columns where the header is completely empty ('' or whitespace)
+    df = df.loc[:, [col != "" for col in df.columns]]
 
-  # Drop any leftover completely empty/blank columns
-  df = df.dropna(how="all", axis=1)
+    # Drop any leftover completely empty/blank columns
+    df = df.dropna(how="all", axis=1)
 
-  return df
+    return df
 
 
 class ConfigValidationError(Exception):
@@ -293,7 +310,9 @@ class LoadMedicalData:
 
         if isinstance(datasource, str):
             self.filepath = datasource
-            self.df = validate_medical_df(read_xml(self.filepath))
+            self.df = read_xml(self.filepath)
+            self.df = self.df[~self.df[['ma', 'ten', 'hoatchat']].isna().any(axis=1)]
+            self.df = validate_medical_df(self.df)
 
         elif isinstance(datasource, pd.DataFrame):
             self.df = datasource.copy()
