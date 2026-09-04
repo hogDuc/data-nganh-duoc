@@ -3009,6 +3009,22 @@ config = {
                 "is_regex": True
             },
             {
+                "output_value": "Isoniazid",
+                "include_keyword": [
+                    r"^isoniazid\b"
+                ],
+                "exclude_keyword": [],
+                "is_regex": True
+            },
+            {
+                "output_value": "Ethambutol",
+                "include_keyword": [
+                    r"^ethambutol\b"
+                ],
+                "exclude_keyword": [],
+                "is_regex": True
+            },
+            {
                 "output_value": "Erythromycin",
                 "include_keyword": [
                     r"^erythromycin\b"
@@ -5965,9 +5981,19 @@ config = {
                 "is_regex": True
             },
             {
+                "output_value": "Ethambutol hydrochlorid",
+                "include_keyword": [
+                    r"ethambutol hydrochlorid",
+                    r"ethambutol hydroclorid",
+                ],
+                "exclude_keyword": [],
+                "is_regex": True
+            },
+            {
                 "output_value": "Tiaprofenic acid",
                 "include_keyword": [
-                    r"tiaprofenic acid"
+                    r"tiaprofenic acid",
+                    r"acid tiaprofenic",
                 ],
                 "exclude_keyword": [],
                 "is_regex": True
