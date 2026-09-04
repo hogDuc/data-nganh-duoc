@@ -4,7 +4,8 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, TypeAdapter, field_validator
 
 '''
-Schema chuẩn hóa dữ liệu raw từ APD
+Schema hỗ trợ chuẩn hóa dữ liệu raw từ APD
+Class MedicineRecord sẽ đảm bảo các cột có được đúng loại datatype và các cột dạng Mandatory như 'loai_thau', 'ma', 'ten' và 'hoatchat' không được trống
 '''
 
 

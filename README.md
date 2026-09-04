@@ -85,7 +85,7 @@ producer_config:{
     - Nhà sản xuất -> `producer_config`
     - Quốc gia sản xuất -> `country_config`
     - Hoạt chất -> `active_ingred_config`
-- Các keyword viết dưới dạng không dấu, viết thường, không viết hoa.
-- Các keyword BẮT BUỘC phải để trong ngoặc '' hoặc "", và chuỗi các keyword phải được đặt trong ngoặc [].
-- Các mục phải được ngăn cách bởi dấu ','
-- Nếu không có exclude thì để giá trị []. 
+- Các keyword viết dưới dạng __không dấu, viết thường__, không viết hoa.
+- Các keyword BẮT BUỘC phải để trong ngoặc `''` hoặc `""`, và chuỗi các keyword phải được đặt trong ngoặc `[]`.
+- Các mục phải được ngăn cách bởi dấu `,`.
+- Nếu không có exclude thì để giá trị list trống `[]`.

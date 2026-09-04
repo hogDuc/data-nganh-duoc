@@ -5,7 +5,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from lxml import etree
 from src.schemas.medicine_schema import MedicineRecord
-from typing import Union
+from typing import Union, Literal, Optional
 from pydantic import TypeAdapter
 from typing import Literal
 
@@ -474,3 +474,58 @@ class LoadMedicalData:
         print(f"Total unmatched rows for '{config_type}': {len(unmatched_df)}")
         
         return unmatched_df.reset_index(drop=True)
+
+    def get_matched(
+        self,
+        config_type: Literal['producer', 'country', 'ingred'],
+        value: Optional[Union[str, list]] = None,
+        unique: bool = False
+    ) -> pd.DataFrame:
+        """Xem các dòng dữ liệu hoặc các giá trị đã match/đã được gán nhãn theo từng loại config.
+
+        Args:
+            config_type (Literal['producer', 'country', 'ingred']): Loại config cần kiểm tra ('producer', 'country', 'ingred').
+            value (Optional[Union[str, list]], optional): Lọc theo giá trị output cụ thể (ví dụ: 'IMP', 'Nhật Bản', 'Paracetamol'). Defaults to None.
+            unique (bool, optional): Nếu True, trả về DataFrame các cặp giá trị duy nhất [input_col, output_col].
+                                     Nếu False, trả về toàn bộ DataFrame các dòng đã match. Defaults to False.
+
+        Returns:
+            pd.DataFrame: DataFrame gồm các dòng hoặc giá trị đã được lọc/gán nhãn.
+        """
+        config_map = {
+            'producer': self.config_producer,
+            'country': self.config_country,
+            'ingred': self.config_ingred,
+            'active_ingred': self.config_ingred,
+            'ingredient': self.config_ingred
+        }
+
+        if config_type not in config_map:
+            raise ValueError(f"Invalid config_type: '{config_type}'. Choose from: ['producer', 'country', 'ingred']")
+
+        sub_cfg = config_map[config_type]
+        if not sub_cfg:
+            raise ValueError(f"Config for '{config_type}' is not configured.")
+
+        input_col = sub_cfg['input_col']
+        output_col = sub_cfg['output_col']
+
+        if output_col not in self.df.columns:
+            raise KeyError(f"Output column '{output_col}' not found in DataFrame.")
+
+        # Dòng đã match là dòng có output_col không rỗng và không NaN
+        matched_mask = self.df[output_col].notna() & (self.df[output_col] != '')
+        matched_df = self.df.loc[matched_mask]
+
+        if value is not None:
+            if isinstance(value, (list, tuple, set)):
+                matched_df = matched_df.loc[matched_df[output_col].isin(value)]
+            else:
+                matched_df = matched_df.loc[matched_df[output_col] == value]
+
+        if unique:
+            cols_to_show = [input_col, output_col] if input_col in matched_df.columns else [output_col]
+            return matched_df[cols_to_show].drop_duplicates().reset_index(drop=True)
+
+        return matched_df.reset_index(drop=True)
+
