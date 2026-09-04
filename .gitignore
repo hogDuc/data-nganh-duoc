@@ -1,4 +1,4 @@
-data/
+data/raw/data_Duoc_full*
 .env
 config/__pycache__
 utils/__pycache__
